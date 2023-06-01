@@ -29,8 +29,6 @@ tags:
   - name: accounts
     description: User operations
 paths:
-# TODO: Make response bodies
-# TODO: Make the accounts docs
 # TODO: Implement the like as a patch
 # todo: implement the draft as a patch
   /posts/{postId}/:
@@ -63,8 +61,6 @@ paths:
           description: Only the owner can edit this post
         '404':
           description: Post not found
-        '503':
-          description: Service not available
       security:
         - api_auth: []
     delete:
@@ -85,15 +81,13 @@ paths:
           description: Post deleted successfully
         '404':
           description: Post not found
-        '503':
-          description: Service not available
       security:
         - api_auth: []
     get:
       tags:
         - posts
-      summary: Read an existing post
-      description: Read an existing post by Id
+      summary: Read an existing post and all his comments
+      description: Read an existing post by Id and all his comments
       parameters:
         - in: path
           name: postId
@@ -104,7 +98,7 @@ paths:
             format: uuid
       responses:
         '200':
-          description: Post sent
+          description: Post sent with comments
           content:
             application/json:
               schema:
@@ -113,9 +107,26 @@ paths:
                   $ref: '#/components/schemas/Post'
         '404':
           description: Post not found
-        '503':
-          description: Service unavailable
-
+    patch:
+      tags:
+        - posts
+      summary: Someone liked this post
+      description: Creates a simgle relation between a user and a post
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Post like count increased by one user
+        '404':
+          description: Post not found
+      security:
+        - api_auth: []
   /posts/:
     post:
       tags:
@@ -138,53 +149,23 @@ paths:
           description: Unauthorized, missing token
         '409':
           description: Post already exists
-        '503':
-          description: Service unavailable
       security:
         - api_auth: []
     get:
       tags:
         - posts
-      summary: Read all posts
-      description: Read all posts from the microblog
+      summary: Read all posts with his comments
+      description: Read all posts from the microblog with comments
       responses:
         '200':
-          description: All blog posts sent
+          description: All blog posts sent with comments
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Post'
-        '503':
-          description: Service unavailable
-          
-  /post/{postId}/comments/:
-    get:
-      tags:
-        - posts
-      summary: Read all comments on a post
-      description: Read al comments from a post
-      parameters:
-        - in: path
-          name: postId
-          description: ID of post
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Read all existing comments on a post
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Comment'
-        '404':
-          description: Post not found
-  
+ 
   /comments/{commentId}/:
     put:
       tags:
@@ -215,8 +196,6 @@ paths:
           description: Only the owner can edit this comment
         '404':
           description: Comment not found
-        '503':
-          description: Service not available
       security:
         - api_auth: []
     delete:
@@ -237,8 +216,6 @@ paths:
           description: Comment deleted successfully
         '404':
           description: Comment not found
-        '503':
-          description: Service not available
       security:
         - api_auth: []
     get:
@@ -257,11 +234,32 @@ paths:
       responses:
         '200':
           description: Comment sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
         '404':
           description: Comment not found
-        '503':
-          description: Service unavailable
-
+    patch:
+      tags:
+        - comments
+      summary: Someone liked this comment
+      description: Creates a relation between a user and a comment
+      parameters:
+        - in: path
+          name: commentId
+          description: ID of comment
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Comment like count increased by one user
+        '404':
+          description: Comment not found
+      security:
+        - api_auth: []
   /comments/:
     post:
       tags:
@@ -282,8 +280,6 @@ paths:
           description: Body attributes missing
         '401':
           description: Unauthorized, missing token
-        '503':
-          description: Service unavailable
       security:
         - api_auth: []
       
@@ -340,8 +336,6 @@ paths:
           description: User deletion success
         '404':
           description: User not found
-        '503':
-          description: Unavailable service
       security:
         - api_auth: []
 
@@ -389,8 +383,6 @@ paths:
           description: Email or password are incorrect
         '404':
           description: User not found
-        '503':
-          description: Service unavailable
       security:
         - api_auth: []
 
@@ -443,9 +435,6 @@ paths:
           description: Submited body has to be json
         '409':
           description: Account already exists
-        '503':
-          description: Service unavailable
-
 
 components:
   schemas:
@@ -463,7 +452,7 @@ components:
           type: array
           items:
             type: string
-        likes:
+        likeCount:
           type: integer
         isDraft:
           type: boolean
@@ -476,6 +465,12 @@ components:
         userId:
           type: string
           format: uuid
+        user:
+          $ref: '#/components/schemas/User'
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
       required:
         - title
         - content
@@ -493,7 +488,7 @@ components:
           type: array
           items:
             type: string
-        likes:
+        likeCount:
           type: integer
         isDraft:
           type: boolean
@@ -503,9 +498,13 @@ components:
         updatedAt:
           type: string
           format: date-time
+        user:
+          $ref: '#/components/schemas/User'
         userId:
           type: string
           format: uuid
+        post:
+          $ref: '#/components/schemas/Post'
         postId:
           type: string
           format: uuid
@@ -543,6 +542,14 @@ components:
           type: array
           items:
             type: string
+        posts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Post'
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
       required:
         - email
         - nickname
