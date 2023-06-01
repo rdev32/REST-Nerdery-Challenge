@@ -1,0 +1,557 @@
+openapi: 3.0.3
+info:
+  title: REST Nerdery Challenge
+  description: |-
+    Introducing my dynamic microblogging platform!
+    This feature-rich API empowers users to easily create an account, sign in, sign up, and sign out, enhancing their blogging experience. 
+    Share your thoughts, engage with others, and stay connected through our friendly platform, tailored to meet your social networking needs.
+
+    _If you're a reviewer please check the `README.md` on the project repository._
+
+    Some useful links:
+    - [The Microblog repository](https://github.com/rdev32/REST-Nerdery-Challenge)
+    - [The source API definition for the Microblog](https://github.com/rdev32/REST-Nerdery-Challenge/blob/master/docs/docs.yaml)
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: renatomonroy@ravn.co
+  license:
+    name: UNLICENCED
+  version: 0.0.1
+
+servers:
+  - url: http://localhost:3000/api/v1
+  - url: http://nimbus.quest/api/v1
+tags:
+  - name: posts
+    description: Information about posts
+  - name: comments
+    description: Access comments
+  - name: accounts
+    description: User operations
+paths:
+# TODO: Make response bodies
+# TODO: Make the accounts docs
+# TODO: Implement the like as a patch
+# todo: implement the draft as a patch
+  /posts/{postId}/:
+    put:
+      tags:
+        - posts
+      summary: Update an existing post
+      description: Update an existing post by Id
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The updated information of the post
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+        required: true
+      responses:
+        '200':
+          description: Post edited successfully   
+        '400':
+          description: Missing body attributes
+        '403':
+          description: Only the owner can edit this post
+        '404':
+          description: Post not found
+        '503':
+          description: Service not available
+      security:
+        - api_auth: []
+    delete:
+      tags:
+        - posts
+      summary: Delete an existing post
+      description: Delete an existing post by Id
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Post deleted successfully
+        '404':
+          description: Post not found
+        '503':
+          description: Service not available
+      security:
+        - api_auth: []
+    get:
+      tags:
+        - posts
+      summary: Read an existing post
+      description: Read an existing post by Id
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Post sent
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '404':
+          description: Post not found
+        '503':
+          description: Service unavailable
+
+  /posts/:
+    post:
+      tags:
+        - posts
+      summary: Create a new post
+      description: Create a new post when logged
+      requestBody:
+        description: Update an existent post in the blog
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+        required: true
+      responses:
+        '201':
+          description: Post created successfully
+        '400':
+          description: Body attributes missing
+        '401':
+          description: Unauthorized, missing token
+        '409':
+          description: Post already exists
+        '503':
+          description: Service unavailable
+      security:
+        - api_auth: []
+    get:
+      tags:
+        - posts
+      summary: Read all posts
+      description: Read all posts from the microblog
+      responses:
+        '200':
+          description: All blog posts sent
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        '503':
+          description: Service unavailable
+          
+  /post/{postId}/comments/:
+    get:
+      tags:
+        - posts
+      summary: Read all comments on a post
+      description: Read al comments from a post
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Read all existing comments on a post
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '404':
+          description: Post not found
+  
+  /comments/{commentId}/:
+    put:
+      tags:
+        - comments
+      summary: Update an existing comment
+      description: Update an existing comment by Id
+      parameters:
+        - in: path
+          name: commentId
+          description: ID of comment
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The updated information of the comment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      responses:
+        '200':
+          description: Comment edited successfully   
+        '400':
+          description: Missing body attributes
+        '403':
+          description: Only the owner can edit this comment
+        '404':
+          description: Comment not found
+        '503':
+          description: Service not available
+      security:
+        - api_auth: []
+    delete:
+      tags:
+        - comments
+      summary: Delete an existing comment
+      description: Delete an existing comment by Id
+      parameters:
+        - in: path
+          name: commentId
+          description: ID of comment
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Comment deleted successfully
+        '404':
+          description: Comment not found
+        '503':
+          description: Service not available
+      security:
+        - api_auth: []
+    get:
+      tags:
+        - comments
+      summary: Read an existing comment
+      description: Read an existing comment by Id
+      parameters:
+        - in: path
+          name: commentId
+          description: ID of comment
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Comment sent
+        '404':
+          description: Comment not found
+        '503':
+          description: Service unavailable
+
+  /comments/:
+    post:
+      tags:
+        - comments
+      summary: Creates a comment inside a post
+      description: Creates a comment inside a post by Id
+      requestBody:
+        description: The content for creating a comment
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+        required: true
+      responses:
+        '201':
+          description: Comment created successfully
+        '400':
+          description: Body attributes missing
+        '401':
+          description: Unauthorized, missing token
+        '503':
+          description: Service unavailable
+      security:
+        - api_auth: []
+      
+  
+  /accounts/{accountId}/:
+    put:
+      tags:
+        - accounts
+      summary: Edit an existing account
+      description: Edit an existing account by Id
+      parameters:
+        - in: path
+          name: accountId
+          description: ID of user
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The content fields for a user to edit
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      security:
+        - api_auth: []
+      responses:
+        '200':
+          description: Edit success
+        '400':
+          description: Required body missing
+        '401':
+          description: Unauthorized, missing token
+        '403':
+          description: Forbidden, only the owner can edit this fields
+        '404':
+          description: User not found
+    delete:
+      tags:
+        - accounts
+      summary: Delete an existing account
+      description: Delete an existing account by Id
+      parameters:
+        - in: path
+          name: accountId
+          description: ID of user
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: User deletion success
+        '404':
+          description: User not found
+        '503':
+          description: Unavailable service
+      security:
+        - api_auth: []
+
+  /accounts/login/:
+    post:
+      tags:
+        - accounts
+      summary: Logs a valid account
+      description: Verifies if an existing account has a valid token
+      requestBody:
+        description: The contents of the user
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  example: pasword
+              required:
+                - email
+                - password
+        required: true
+      responses:
+        '200':
+          description: Logged in success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  exp:
+                    type: string
+                    format: date-time
+                  token:
+                    type: string
+                    format: uuid
+                  refreshToken:
+                    type: string
+                    format: uuid
+        '401':
+          description: Email or password are incorrect
+        '404':
+          description: User not found
+        '503':
+          description: Service unavailable
+      security:
+        - api_auth: []
+
+  /accounts/logout/:
+    patch:
+      tags:
+        - accounts
+      summary: Disconects a previously logged account
+      description: Deletes the valid token from a previous logged account
+      requestBody:
+        description: Information sent to logout
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+              required:
+                - userId
+        required: true
+      responses:
+        '204':
+          description: Logout success, token deleted
+        '404':
+          description: No previous user logged found
+      security:
+        - api_auth: []
+
+  /accounts/register/:
+    post:
+      tags:
+        - accounts
+      summary: Creates a new account
+      description: Verifies if the submited body is ok and then creates a new user
+      requestBody:
+        description: The contents for registry
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+        required: true
+      responses:
+        '201':
+          description: Account created successfully
+        '400':
+          description: Missing required attributes
+        '406':
+          description: Submited body has to be json
+        '409':
+          description: Account already exists
+        '503':
+          description: Service unavailable
+
+
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        content:
+          type: string
+        assets:
+          type: array
+          items:
+            type: string
+        likes:
+          type: integer
+        isDraft:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        userId:
+          type: string
+          format: uuid
+      required:
+        - title
+        - content
+        - userId
+
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        assets:
+          type: array
+          items:
+            type: string
+        likes:
+          type: integer
+        isDraft:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        userId:
+          type: string
+          format: uuid
+        postId:
+          type: string
+          format: uuid
+      required:
+        - content
+        - userId
+        - postId
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        password:
+          type: string
+        nickname:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        firstname:
+          type: string
+        lastname:
+          type: string
+        verified:
+          type: boolean
+        emailPublic:
+          type: boolean
+        namePublic:
+          type: boolean
+        tokens:
+          type: array
+          items:
+            type: string
+      required:
+        - email
+        - nickname
+        - password
+        - firstname
+        - lastname
+
+  securitySchemes:
+    api_auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
