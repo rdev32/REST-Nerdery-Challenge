@@ -29,8 +29,6 @@ tags:
   - name: accounts
     description: User operations
 paths:
-# TODO: Implement the like as a patch
-# todo: implement the draft as a patch
   /posts/{postId}/:
     put:
       tags:
