@@ -6,9 +6,6 @@ import commentsRouter from './comments.router'
 
 const routes = Router()
 
-routes.use('/api/', (req, res) => {
-  res.status(200).json({ status: 'All systems working' })
-})
 routes.use('/api/v1', documentation)
 routes.use('/api/v1', accountsRouter)
 routes.use('/api/v1', postsRouter)
