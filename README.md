@@ -1,14 +1,16 @@
 # Microblog Challenge
+
 This is my submission for the REST module challenge. Throughout the process, I have gained valuable knowledge and successfully overcome significant obstacles. I am pleased with the progress I have made and the outcomes achieved in this project. However, I encountered challenges specifically related to testing and authentication due to not utilizing Test-Driven Development (TDD). As a result, I had to rework several sections of the project to ensure compliance with the requirements. Although this experience was not ideal, it has served as a valuable lesson, and I am determined to avoid making the same mistake in the future. Going forward, I am committed to making better design choices to enhance the overall quality of my work.
 
 ## Documentation
+
 The documentation of the project can be found at `http://localhost:3000/api/v1/docs/` the main endpoints are the following
+
 - `/api/v1/accounts`
 - `/api/v1/posts`
 - `/api/v1/comments`
 
 You can check each one in detail inside the elements of the swagger page
-
 
 ## Setup
 
