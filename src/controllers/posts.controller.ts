@@ -1,31 +1,42 @@
-/* 
-  -- para hacer un controlador --
-  primero sacas la data del request
-  despues lo validas, si es que se tiene que validar
-  luego usas el servicio con la data validada
-  y finalmente respondes con el status code, si tiene respuesta la mandas cmo json
-*/
-
-import { PrismaClient } from '@prisma/client'
 import { Request, Response } from 'express'
-import * as Service from '../services/accounts.service'
+import * as Service from '../services/posts.service'
+import * as Validate from '../utils/validations'
 
 export async function createPost(req: Request, res: Response): Promise<void> {
-  res.sendStatus(501)
+  const submit = Validate.postSubmit(req.body)
+  await Service.create(submit)
+  res.sendStatus(201)
 }
 
 export async function updatePost(req: Request, res: Response): Promise<void> {
-  res.sendStatus(501)
+  const input = Validate.postEdit(req.body)
+  await Service.update(input, req.params.id)
+  res.sendStatus(204)
 }
 
 export async function readPost(req: Request, res: Response): Promise<void> {
-  res.sendStatus(501)
+  const post = await Service.read(req.params.id)
+  res.status(200).json(post)
 }
 
 export async function readPosts(req: Request, res: Response): Promise<void> {
-  res.sendStatus(501)
+  const posts = await Service.readAll()
+  res.status(200).json(posts)
 }
 
 export async function deletePost(req: Request, res: Response): Promise<void> {
-  res.sendStatus(501)
+  await Service.remove(req.params.id)
+  res.sendStatus(204)
+}
+
+export async function likePost(req: Request, res: Response): Promise<void> {
+  const submit = Validate.likeSubmit(req.body)
+  await Service.like(submit, req.params.id)
+  res.sendStatus(204)
+}
+
+export async function unlikePost(req: Request, res: Response): Promise<void> {
+  const submit = Validate.likeSubmit(req.body)
+  await Service.unlike(submit, req.params.id)
+  res.sendStatus(204)
 }
