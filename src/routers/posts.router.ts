@@ -20,13 +20,13 @@ router.post(
   asyncHandler(postsController.createPost)
 )
 router.put(
-  '/posts/:id', 
+  '/posts/like/:id', 
   auth.protect, 
   auth.authorize, 
   asyncHandler(postsController.likePost)
 )
 router.put(
-  '/posts/:id', 
+  '/posts/unlike/:id', 
   auth.protect, 
   auth.authorize, 
   asyncHandler(postsController.unlikePost)

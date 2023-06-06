@@ -22,13 +22,13 @@ router.put(
   asyncHandler(commentsController.updateComment)
 )
 router.put(
-  '/posts/:id', 
+  '/posts/like/:id', 
   auth.protect, 
   auth.authorize, 
   asyncHandler(commentsController.likeComment)
 )
 router.put(
-  '/posts/:id',
+  '/posts/unlike/:id',
   auth.protect,
   auth.authorize,
   asyncHandler(commentsController.unlikeComment)
