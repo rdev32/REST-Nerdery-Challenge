@@ -34,7 +34,7 @@ paths:
       tags:
         - posts
       summary: Update an existing post
-      description: Update an existing post by Id
+      description: Update an existing post by id
       parameters:
         - in: path
           name: postId
@@ -51,7 +51,7 @@ paths:
               $ref: '#/components/schemas/Post'
         required: true
       responses:
-        '200':
+        '204':
           description: Post edited successfully   
         '400':
           description: Missing body attributes
@@ -105,11 +105,12 @@ paths:
                   $ref: '#/components/schemas/Post'
         '404':
           description: Post not found
-    patch:
+  /posts/like/{postId}:
+    put:
       tags:
         - posts
       summary: Someone liked this post
-      description: Creates a simgle relation between a user and a post
+      description: Creates a relation between a user and a post
       parameters:
         - in: path
           name: postId
@@ -118,9 +119,48 @@ paths:
           schema:
             type: string
             format: uuid
+      requestBody:
+        description: The updated information of the post
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Like'
+        required: true
       responses:
-        '200':
+        '204':
           description: Post like count increased by one user
+        '403':
+          description: Only the owner can edit this comment
+        '404':
+          description: Post not found
+      security:
+        - api_auth: []
+  /posts/unlike/{postId}:
+    put:
+      tags:
+        - posts
+      summary: Someone removed his like
+      description: Erases the relation between a user and a liked post
+      parameters:
+        - in: path
+          name: postId
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The updated information of the post
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Like'
+        required: true
+      responses:
+        '204':
+          description: Post like count increased by one user
+        '403':
+          description: Only the owner can edit this post
         '404':
           description: Post not found
       security:
@@ -130,7 +170,7 @@ paths:
       tags:
         - posts
       summary: Create a new post
-      description: Create a new post when logged
+      description: Create a new post when logged in
       requestBody:
         description: Update an existent post in the blog
         content:
@@ -186,7 +226,7 @@ paths:
               $ref: '#/components/schemas/Comment'
         required: true
       responses:
-        '200':
+        '204':
           description: Comment edited successfully   
         '400':
           description: Missing body attributes
@@ -238,7 +278,8 @@ paths:
                 $ref: '#/components/schemas/Comment'
         '404':
           description: Comment not found
-    patch:
+  /comments/like/{commentId}:
+    put:
       tags:
         - comments
       summary: Someone liked this comment
@@ -251,9 +292,48 @@ paths:
           schema:
             type: string
             format: uuid
+      requestBody:
+        description: Update an existent post in the blog
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Like'
+        required: true
       responses:
-        '200':
+        '204':
           description: Comment like count increased by one user
+        '403':
+          description: Only the owner can edit this comment
+        '404':
+          description: Comment not found
+      security:
+        - api_auth: []
+  /comments/unlike/{commentId}:
+    put:
+      tags:
+        - comments
+      summary: Someone removed his like
+      description: Erases the relation between a user and a liked comment
+      parameters:
+        - in: path
+          name: commentId
+          description: ID of post
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: Update an existent post in the blog
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Like'
+        required: true
+      responses:
+        '204':
+          description: Comment like count increased by one user
+        '403':
+          description: Only the owner can edit this comment
         '404':
           description: Comment not found
       security:
@@ -306,7 +386,7 @@ paths:
       security:
         - api_auth: []
       responses:
-        '200':
+        '204':
           description: Edit success
         '400':
           description: Required body missing
@@ -385,29 +465,16 @@ paths:
         - api_auth: []
 
   /accounts/logout/:
-    patch:
+    put:
       tags:
         - accounts
       summary: Disconects a previously logged account
       description: Deletes the valid token from a previous logged account
-      requestBody:
-        description: Information sent to logout
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                userId:
-                  type: string
-                  format: uuid
-              required:
-                - userId
-        required: true
       responses:
         '204':
           description: Logout success, token deleted
-        '404':
-          description: No previous user logged found
+        '401':
+          description: Unauthorized
       security:
         - api_auth: []
 
@@ -433,6 +500,17 @@ paths:
           description: Submited body has to be json
         '409':
           description: Account already exists
+  /accounts/confirmation/:
+    put:
+      tags:
+        - accounts
+      summary: Verifies the email to an account
+      description: Recieves the token on a query and confirms a user
+      responses:
+        '204':
+          description: Logout success, token deleted
+        '401':
+          description: Not a valid token
 
 components:
   schemas:
@@ -536,10 +614,12 @@ components:
           type: boolean
         namePublic:
           type: boolean
+        isModerator:
+          type: boolean
         tokens:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/Token'
         posts:
           type: array
           items:
@@ -548,13 +628,66 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Comment'
+        likes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Like'
       required:
         - email
         - nickname
         - password
         - firstname
         - lastname
-
+    
+    Token:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        uuid:
+          type: string
+          format: uuid
+        jti:
+          type: string
+          format: uuid
+        aud:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/User'
+        userId:
+          type: string
+          format: uuid
+      required:
+        - userId
+        
+    Like:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user:
+          $ref: '#/components/schemas/User'
+        userId:
+          type: string
+          format: uuid
+        post:
+          $ref: '#/components/schemas/Post'
+        postId:
+          type: string
+          format: uuid
+        comment:
+          $ref: '#/components/schemas/Comment'
+        commentId:
+          type: string
+          format: uuid
+      required:
+        - userId
+    
   securitySchemes:
     api_auth:
       type: http

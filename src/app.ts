@@ -4,10 +4,16 @@ import morgan from 'morgan'
 
 import 'dotenv/config'
 
-import documentation from './routers/docs.router'
-import accountsRouter from './routers/accounts.router'
-import postsRouter from './routers/posts.router'
-import commentsRouter from './routers/comments.router'
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any
+    }
+  }
+}
+
+import routes from './routers/'
+import errorHandler from './middlewares/error.middleware'
 
 const app: Application = express()
 
@@ -20,9 +26,7 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use('/api/v1', documentation)
-app.use('/api/v1', accountsRouter)
-app.use('/api/v1', postsRouter)
-app.use('/api/v1', commentsRouter)
+app.use(routes)
+app.use(errorHandler)
 
 export default app

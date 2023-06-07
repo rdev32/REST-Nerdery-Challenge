@@ -8,19 +8,21 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  password      String
-  nickname      String    @unique
-  createdAt     DateTime  @default(now()) @map("created_at")
-  firstname     String    @map("first_name")
-  lastname      String    @map("last_name")
-  verified      Boolean   @default(false)
-  emailPublic   Boolean   @default(true) @map("email_public")
-  namePublic    Boolean   @default(true) @map("name_public")
-  tokens        String[]
-  posts         Post[] 
-  comments      Comment[]
+  id          String    @id @default(uuid())
+  email       String    @unique
+  password    String
+  nickname    String    @unique
+  createdAt   DateTime? @default(now()) @map("created_at")
+  firstname   String    @map("first_name")
+  lastname    String    @map("last_name")
+  verified    Boolean?  @default(false)
+  emailPublic Boolean?  @default(false) @map("email_public")
+  namePublic  Boolean?  @default(false) @map("name_public")
+  isModerator Boolean?  @default(false) @map("is_moderator")
+  tokens      Token[]
+  posts       Post[]
+  comments    Comment[]
+  likes       Like[]
 
   @@map("users")
 }
@@ -29,14 +31,16 @@ model Comment {
   id        String    @id @default(uuid())
   content   String
   assets    String[]
-  likeCount Int       @default(0) @map("like_count")
-  isDraft   Boolean   @default(false) @map("is_draft")
-  createdAt DateTime  @default(now()) @map("created_at")
+  likeCount Int?      @default(0) @map("like_count")
+  isDraft   Boolean?  @default(false) @map("is_draft")
+  createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
+  reported  Int?      @default(0)
   user      User      @relation(fields: [userId], references: [id])
   userId    String    @map("user_id")
   post      Post      @relation(fields: [postId], references: [id])
   postId    String    @map("post_id")
+  likes     Like[]
 
   @@map("comments")
 }
@@ -46,13 +50,41 @@ model Post {
   title     String
   content   String
   assets    String[]
-  likeCount Int       @default(0) @map("like_count")
-  isDraft   Boolean   @default(false) @map("is_draft")
-  createdAt DateTime  @default(now()) @map("created_at")
+  likeCount Int?      @default(0) @map("like_count")
+  isDraft   Boolean?  @default(false) @map("is_draft")
+  createdAt DateTime? @default(now()) @map("created_at")
   updatedAt DateTime? @map("updated_at")
+  reported  Int?      @default(0)
   comments  Comment[]
   user      User      @relation(fields: [userId], references: [id])
   userId    String    @map("user_id")
+  userLikes Like[]
 
   @@map("posts")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @map("user_id")
+  post      Post?    @relation(fields: [postId], references: [id])
+  postId    String?  @map("post_id")
+  comment   Comment? @relation(fields: [commentId], references: [id])
+  commentId String?  @map("comment_id")
+
+  @@unique([userId, postId])
+  @@unique([userId, commentId])
+  @@map("likes")
+}
+
+model Token {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  jti       String   @unique @default(uuid())
+  aud       String?
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    String?  @map("user_id")
+
+  @@map("tokens")
 }
