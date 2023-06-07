@@ -54,6 +54,7 @@ Description of the project scripts made on `package.json`
 | `pnpm test`            | Runs Jest tests.                                 |
 | `pnpm coverage`        | Runs Jest tests and generates a coverage report. |
 | `pnpm prisma:reset`    | Resets the Prisma migrations.                    |
+| `pnpm prisma:deploy`   | Generates a migration for deployment             |
 | `pnpm prisma:migrate`  | Runs Prisma migrations in development mode       |
 | `pnpm prisma:generate` | Generates Prisma client.                         |
 | `pnpm prisma:seed`     | Seeds the Prisma database.                       |
