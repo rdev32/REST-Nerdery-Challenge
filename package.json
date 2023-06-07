@@ -12,6 +12,7 @@
     "coverage": "jest --coverage",
     "prisma:reset": "prisma migrate reset",
     "prisma:migrate": "prisma migrate dev --name init",
+    "prisma:deploy": "prisma migrate deploy --name deploy",
     "prisma:generate": "prisma generate",
     "prisma:seed": "prisma db seed",
     "prisma:format": "prisma format"
@@ -28,6 +29,7 @@
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.0",
     "morgan": "^1.10.0",
+    "nodemailer": "^6.9.3",
     "swagger-ui-express": "^4.6.3"
   },
   "devDependencies": {
@@ -41,6 +43,7 @@
     "@types/jsonwebtoken": "^9.0.2",
     "@types/morgan": "^1.9.4",
     "@types/node": "^20.1.4",
+    "@types/nodemailer": "^6.4.8",
     "@types/swagger-ui-express": "^4.1.3",
     "eslint": "^8.40.0",
     "eslint-config-airbnb": "^19.0.4",
