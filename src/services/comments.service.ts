@@ -31,7 +31,7 @@ export async function update(input: ValidationResult<Comment>, commentId: string
     throw new BadRequest('Error on submited body')
   }
 
-  const comment = await prisma.comment.findUnique({ where: { id: value.id } })
+  const comment = await prisma.comment.findUnique({ where: { id: commentId } })
   if (!comment) {
     throw new NotFound('Comment not found')
   }
