@@ -59,3 +59,4 @@ Description of the project scripts made on `package.json`
 | `pnpm prisma:generate` | Generates Prisma client.                         |
 | `pnpm prisma:seed`     | Seeds the Prisma database.                       |
 | `pnpm prisma:format`   | Formats the Prisma schema.                       |
+.
